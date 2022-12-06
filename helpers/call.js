@@ -1,5 +1,4 @@
-const axios = require('axios')
-const config = require('../config')
+const config = require("../config");
 
 /**
  * Make calls to hive node
@@ -8,30 +7,30 @@ const config = require('../config')
  * @param {Number}timeout - optional - default 10 seconds
  */
 const call = async (method, params = [], timeout = 10) => {
-  let resolved = 0
+  let resolved = 0;
   return new Promise((resolve, reject) => {
-    axios
-      .post(
-        config.node,
-        JSON.stringify({
-          jsonrpc: '2.0',
-          method,
-          params,
-          id: 1
-        })
-      )
-      .then(res => {
-        if (res && res.status === 200) {
-          resolved = 1
-          resolve(res.data)
-        }
-      })
+    fetch(config.node, {
+      method: "post",
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method,
+        params,
+        id: 1,
+      }),
+    }).then((res) => {
+      if (res && !res.ok) {
+        resolved = 1;
+        return res.json().then(resolve);
+      } else {
+        reject(new Error("Bad response"));
+      }
+    });
     setTimeout(() => {
       if (!resolved) {
-        reject(new Error('Network timeout.'))
+        reject(new Error("Network timeout."));
       }
-    }, timeout * 1000)
-  })
-}
+    }, timeout * 1000);
+  });
+};
 
-module.exports = call
+module.exports = call;
