@@ -17,12 +17,12 @@ const call = async (method, params = [], timeout = 10) => {
         params,
         id: 1,
       }),
-    }).then((res) => {
-      if (res && !res.ok) {
+    }).then(async (res) => {
+      if (res && res.ok) {
         resolved = 1;
         return res.json().then(resolve);
       } else {
-        reject(new Error("Bad response"));
+        reject(new Error("Bad response ${res.status}: ${await res.text()}"));
       }
     });
     setTimeout(() => {
